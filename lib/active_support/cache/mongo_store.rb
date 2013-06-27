@@ -78,11 +78,19 @@ module MongoStore
         value = entry.value
         value = value.to_mongo if value.respond_to? :to_mongo
         begin
-          Rails.logger.debug "Inserting key: #{key}"
+          if value and value.is_a?(Array) and value[0] and value[0].is_a?(String)
+            value[0] = value[0].encode("UTF-16BE", :invalid => :replace, :replace => "?").encode("UTF-8")
+            puts "!!!!!!!! #{value[0]}"
+          end
           # Rails.logger.debug "Value: #{value}"
-          collection.update({'_id' => key}, {'$set' => {'value' => value, 'expires' => expires}}, :upsert => true)
+          unless key.include?('/assets/')
+            Rails.logger.debug "mongo_store: Inserting #{key}..."
+            collection.update({'_id' => key}, {'$set' => {'value' => value, 'expires' => expires}}, :upsert => true)
+          else
+            Rails.logger.debug "mongo_store: Ignoring key..."
+          end
         rescue BSON::InvalidDocument
-          Rails.logger.debug "Invalid document for key: #{key}"
+          Rails.logger.debug "mongo_store: Invalid document for key #{key}"
           value = value.to_s and retry unless value.is_a? String
         end
       end
