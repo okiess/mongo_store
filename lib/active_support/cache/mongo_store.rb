@@ -78,12 +78,12 @@ module MongoStore
         value = entry.value
         value = value.to_mongo if value.respond_to? :to_mongo
         begin
-          if value and value.is_a?(Array) and value[0] and value[0].is_a?(String)
-            value[0] = value[0].encode("UTF-16BE", :invalid => :replace, :replace => "?").encode("UTF-8")
-            puts "!!!!!!!! #{value[0]}"
-          end
           # Rails.logger.debug "Value: #{value}"
           unless key.include?('/assets/')
+            if value and value.is_a?(Array) and value[0] and value[0].is_a?(String)
+              value[0] = value[0].encode("UTF-16BE", :invalid => :replace, :replace => "?").encode("UTF-8")
+              value[0] = value[0].encode('UTF-8')
+            end
             Rails.logger.debug "mongo_store: Inserting #{key}..."
             collection.update({'_id' => key}, {'$set' => {'value' => value, 'expires' => expires}}, :upsert => true)
           else
