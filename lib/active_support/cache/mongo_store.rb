@@ -79,7 +79,7 @@ module MongoStore
         value = value.to_mongo if value.respond_to? :to_mongo
         begin
           Rails.logger.debug "Inserting key: #{key}"
-          Rails.logger.debug "Value: #{value}"
+          # Rails.logger.debug "Value: #{value}"
           collection.update({'_id' => key}, {'$set' => {'value' => value, 'expires' => expires}}, :upsert => true)
         rescue BSON::InvalidDocument
           Rails.logger.debug "Invalid document for key: #{key}"
