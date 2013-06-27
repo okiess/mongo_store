@@ -1,5 +1,8 @@
+#encoding: utf-8
+
 require 'active_support'
 require 'mongo'
+require 'iconv'
 
 module MongoStore
   module Cache
@@ -77,10 +80,12 @@ module MongoStore
         begin
           collection.update({'_id' => key}, {'$set' => {'value' => value, 'expires' => expires}}, :upsert => true)
         rescue BSON::InvalidDocument
+          Rails.logger.debug "Invalid document for key: #{key}"
           value = value.to_s and retry unless value.is_a? String
         end
       end
       def read_entry(key, options=nil)
+        Rails.logger.debug "Reading entry for key: #{key}"
         doc = collection.find_one('_id' => key, 'expires' => {'$gt' => Time.now})
         ActiveSupport::Cache::Entry.new(doc['value']) if doc
       end
