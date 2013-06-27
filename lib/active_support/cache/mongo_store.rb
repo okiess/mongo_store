@@ -78,6 +78,8 @@ module MongoStore
         value = entry.value
         value = value.to_mongo if value.respond_to? :to_mongo
         begin
+          Rails.logger.debug "Inserting key: #{key}"
+          Rails.logger.debug "Value: #{value}"
           collection.update({'_id' => key}, {'$set' => {'value' => value, 'expires' => expires}}, :upsert => true)
         rescue BSON::InvalidDocument
           Rails.logger.debug "Invalid document for key: #{key}"
@@ -85,7 +87,7 @@ module MongoStore
         end
       end
       def read_entry(key, options=nil)
-        Rails.logger.debug "Reading entry for key: #{key}"
+        # Rails.logger.debug "Reading entry for key: #{key}"
         doc = collection.find_one('_id' => key, 'expires' => {'$gt' => Time.now})
         ActiveSupport::Cache::Entry.new(doc['value']) if doc
       end
