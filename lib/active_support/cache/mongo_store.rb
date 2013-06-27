@@ -87,7 +87,7 @@ module MongoStore
             Rails.logger.debug "mongo_store: Inserting #{key}..."
             collection.update({'_id' => key}, {'$set' => {'value' => value, 'expires' => expires}}, :upsert => true)
           else
-            Rails.logger.debug "mongo_store: Ignoring key..."
+            Rails.logger.debug "mongo_store: Ignoring #{key}..."
           end
         rescue BSON::InvalidDocument
           Rails.logger.debug "mongo_store: Invalid document for key #{key}"
